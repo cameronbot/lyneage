@@ -53,7 +53,9 @@ var Lyneage = (function() {
             newChildLink: ".add-child"
           };
 
+      // family table events
       $(selectors.familyTable)
+        // generate JSON to be consumed by D3
         .on("click", selectors.generateTree, function(e) {
           e.preventDefault();
 
@@ -61,6 +63,7 @@ var Lyneage = (function() {
 
           drawTree(treeJson);
         })
+        // prepare form to create child for a parent and one of their spouses
         .on('click', selectors.newChildLink, function(e) {
           e.preventDefault();
 
@@ -71,33 +74,35 @@ var Lyneage = (function() {
           $modal.find('.modal-header h3').text("Add a Child");
 
           $.get("/families/" + _this.familyId + "/people/new?parent=" + thisPid, function(data) {
+            // set modal body to ajax response (html template)
             $modal.find('.modal-body').html(data);
 
-            $modal.find('form').unbind('submit').bind('ajax:complete', function(e) {
+            // close modal on complete submission
+            $modal.find('form').bind('ajax:complete', function(e) {
               $modal.modal('hide');
             });
 
-            var p2 = $modal.find('#parent_two');
+            // create <option> for each spouse (#parent_two)
+            var $p2 = $modal.find('#parent_two');
+            $.each(thisPerson.spouses, function() {
+              var $option = $('<option></option>');
 
-            $.each(thisPerson.spouses, function(s) {
-              var thatPid = this,
-                  $option = $('<option></option>')
-                    .val(thatPid)
-                    .text(_this.get(thatPid).name);
-              p2.append($option);
+              $option.val(this).text(_this.get(this).name);
+              $p2.append($option);
             });
 
-            $modal.find('#parent_one').append(
-              $("<option>")
-                .val(thisPid)
-                .text(thisPerson.name)
-            ).change();
+            // create <option> for "this" person (#parent_one)
+            // trigger change when we finish adding options to set hidden field parentIds
+            $modal.find('#parent_one')
+              .append($("<option>").val(thisPid).text(thisPerson.name))
+              .change();
 
             $modal.modal();
           });
         }
       );
 
+      // add person modal events
       $(selectors.newPersonModal).on("change", ".select-parents select", function(e) {
         e.preventDefault();
 
