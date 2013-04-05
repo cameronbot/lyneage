@@ -102,10 +102,10 @@ function drawTree(treeData) {
   centerTree("body");
 
   function centerTree(selector) {
-  // selector points to the enclosing g element
-  var innerSVG = $(selector + " svg")[0];
-  var bbox = innerSVG.getBBox();
+    // selector points to the enclosing g element
+    var innerSVG = $(selector + " svg")[0];
+    var bbox = innerSVG.getBBox();
 
-  innerSVG.setAttribute("viewBox", [bbox.x, bbox.y-treePadY, bbox.width, bbox.height+treePadY].join(" "));
-}
+    innerSVG.setAttribute("viewBox", [bbox.x, bbox.y-treePadY, bbox.width, bbox.height+treePadY].join(" "));
+  }
 }

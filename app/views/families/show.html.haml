@@ -49,49 +49,7 @@
 
 :javascript
   $(document).ready(function() {
-    document.lyneage = {};
-
-    $.ajax("#{d3data_family_path(@family)}").success(function(data) {
-      document.lyneage.dataPoints = data;
-
-      parseNames($('.person-id'), data);
-    });
-  });
-
-  $(document).ready(function() {
-    $('#family').on('click', 'a.add-child', function(e) {
-      e.preventDefault();
-
-      var $modal = $('#add-modal'),
-          thisPid = $(this).data('pid'),
-          thisPerson = document.lyneage.dataPoints[thisPid];
-
-      $modal.find('.modal-header h3').text("Add a Child");
-
-      $.get("#{new_family_person_path(@family)}?parent=" + thisPid, function(data) {
-        $modal.find('.modal-body').html(data);
-
-        $modal.find('form').unbind('submit').bind('ajax:complete', function(e) {
-          $modal.modal('hide');
-        });
-
-        var p2 = $modal.find('#parent_two');
-        $.each(thisPerson.spouses, function(s) {
-          var thatPid = this,
-              $option = $('<option></option>')
-                .val(thatPid)
-                .text(document.lyneage.dataPoints[thatPid].name);
-          p2.append($option);
-        });
-
-        $modal.find('#parent_one').append(
-          $("<option>")
-            .val(thisPid)
-            .text(document.lyneage.dataPoints[thisPid].name)
-        ).change();
-        $modal.modal();
-      });
-    });
+    Lyneage.load("#{@family.id}", "#{d3data_family_path(@family)}");
   });
 
 = render "modal"

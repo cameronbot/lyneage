@@ -7,7 +7,8 @@ function buildTree(data, root) {
     spouseObjects = [],
     spouseIds = [],
     childObjects = [],
-    childIds = [];
+    childIds = [],
+    clone = Lyneage.utils.clone;
 
   // clone object
   tree = clone(data[root]);
@@ -27,6 +28,8 @@ function buildTree(data, root) {
 
 function appendSpouses(data, node, ids) {
   if(!ids) return;
+
+  var clone = Lyneage.utils.clone;
   console.log("append spouses to", node.name, ids);
 
   var spouseObjects = [],
@@ -58,6 +61,7 @@ function appendChildren(data, node, ids) {
     node.children = undefined;
     return undefined;
   }
+  var clone = Lyneage.utils.clone;
   console.log("append children to", node.name, ids);
 
   var childObjects = [],

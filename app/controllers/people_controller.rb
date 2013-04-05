@@ -7,6 +7,8 @@ class PeopleController < ApplicationController
   def new
     @family = Family.find(params[:family_id])
     @person = @family.people.build
+
+    render layout: false
   end
 
   def create
