@@ -3,16 +3,22 @@ function drawTree(treeData) {
   // Clear old svg canvas
   d3.select("svg").remove();
 
+  var width = $("body").width() - 100,
+      height = 500,
+      treePadY = 60;
   // Create a svg canvas
   var vis = d3.select("body").append("svg:svg")
-    .attr("width", 400)
-    .attr("height", 300)
+    .attr("width", width)
+    .attr("height", height)
+    .attr("style", "left:50%;margin-left: -" + width/2 + "px")
     .append("svg:g")
-    .attr("transform", "translate(40, 0)"); // shift everything to the right
+      //.attr("viewBox", [-800,0,200,200].join(" "))
+      .attr("preserveAspectRatio", "xMidYMin meet")
+      .attr("transform", "translate("+width+",40)rotate(90)"); // shift everything to the right
 
   // Create a tree "canvas"
   var tree = d3.layout.tree()
-    .size([300, 300 ])
+    .size([width, height])
     .children(function(d) {
       if(d.spouses && d.spouses.length) {
         if( Object.prototype.toString.call( d.spouses ) === '[object Array]' ) {
@@ -90,7 +96,16 @@ function drawTree(treeData) {
     .attr("dx", function(d) { return 0; /*return d.spouses ? -8 : 8;*/ })
     .attr("dy", 3)
     .attr("text-anchor", function(d) { return "start"; /*d.spouses ? "end" : "start";*/ })
-  .attr("transform", function(d) { return "rotate(-45)translate(8,-4)"; /*return d.x < 180 ? "rotate(-45)translate(8,-4)" : "rotate(135)translate(-8,4)"; */ })
+    .attr("transform", function(d) { return "rotate(-45)translate(8,-4)"; /*return d.x < 180 ? "rotate(-45)translate(8,-4)" : "rotate(135)translate(-8,4)"; */ })
     .text(function(d) { return d.name; })
 
+  centerTree("body");
+
+  function centerTree(selector) {
+  // selector points to the enclosing g element
+  var innerSVG = $(selector + " svg")[0];
+  var bbox = innerSVG.getBBox();
+
+  innerSVG.setAttribute("viewBox", [bbox.x, bbox.y-treePadY, bbox.width, bbox.height+treePadY].join(" "));
+}
 }
