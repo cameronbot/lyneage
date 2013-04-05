@@ -1,0 +1,97 @@
+%h2= @family.name
+
+= link_to "Add a person", new_family_person_path(@family)
+
+- if @family.people.present?
+  %table#family.table.table-striped
+    %thead
+      %tr
+        %th ID
+        %th Name
+        %th Spouses
+        %th Parents
+        %th Children
+        %th Actions
+    %tbody
+    - @family.people.each do |p|
+      %tr
+        %td
+          %a{ name: p.id }= p.id
+        %td
+          = p.name
+        %td
+          - p.spouses.present? && p.spouses.each do |r|
+            %a.person-id{ href: "##{r}", :"data-pid" => "#{r}" }= r
+            /= link_to "(add child with)", new_family_person_path(@family, parent: )
+            %br
+          %small
+            = link_to "Add Spouse", new_family_person_path(@family, spouse: p.id),
+              class: "add-spouse", data: { :pid => p.id.to_s }
+        %td
+          - p.parents.present? && p.parents.each do |r|
+            %a.person-id{ href: "##{r}", :"data-pid" => "#{r}" }= r
+            %br
+          %small
+            = link_to "Add Parent", new_family_person_path(@family, child: p.id),
+              class: "add-parent", data: { :pid => p.id.to_s }
+        %td
+          - p.children.present? && p.children.each do |r|
+            %a.person-id{ href: "##{r}", :"data-pid" => "#{r}" }= r
+            %br
+          %small
+            = link_to "Add Child", new_family_person_path(@family, parent: p.id),
+              class: "add-child", data: { :pid => p.id.to_s }
+        %td
+          %a.tree-link{ href: "#", :"data-root" => "#{p.id}" } Tree
+          = link_to "Edit", edit_family_person_path(@family, p)
+          = link_to "Delete", family_person_path(@family, p), method: :delete, confirm: "Are you sure you want to delete this person?"
+
+
+:javascript
+  $(document).ready(function() {
+    document.lyneage = {};
+
+    $.ajax("#{d3data_family_path(@family)}").success(function(data) {
+      document.lyneage.dataPoints = data;
+
+      parseNames($('.person-id'), data);
+    });
+  });
+
+  $(document).ready(function() {
+    $('#family').on('click', 'a.add-child', function(e) {
+      e.preventDefault();
+
+      var $modal = $('#add-modal'),
+          thisPid = $(this).data('pid'),
+          thisPerson = document.lyneage.dataPoints[thisPid];
+
+      $modal.find('.modal-header h3').text("Add a Child");
+
+      $.get("#{new_family_person_path(@family)}?parent=" + thisPid, function(data) {
+        $modal.find('.modal-body').html(data);
+
+        $modal.find('form').unbind('submit').bind('ajax:complete', function(e) {
+          $modal.modal('hide');
+        });
+
+        var p2 = $modal.find('#parent_two');
+        $.each(thisPerson.spouses, function(s) {
+          var thatPid = this,
+              $option = $('<option></option>')
+                .val(thatPid)
+                .text(document.lyneage.dataPoints[thatPid].name);
+          p2.append($option);
+        });
+
+        $modal.find('#parent_one').append(
+          $("<option>")
+            .val(thisPid)
+            .text(document.lyneage.dataPoints[thisPid].name)
+        ).change();
+        $modal.modal();
+      });
+    });
+  });
+
+= render "modal"

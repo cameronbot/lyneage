@@ -1,0 +1,4 @@
+%ul
+- if @families.present?
+  - @families.each do |f|
+    %li= link_to f.name, family_path(f)

@@ -1,0 +1,40 @@
+// Place all the styles related to the families controller here.
+// They will automatically be included in application.css.
+// You can use Sass (SCSS) here: http://sass-lang.com/
+
+.node circle {
+  fill: #fff;
+  stroke: steelblue;
+  stroke-width: 1.5px;
+}
+
+.node {
+  font: 10px sans-serif;
+}
+
+.node.spouse text {
+  opacity: .5;
+}
+
+circle.m {
+  stroke: steelblue;
+}
+circle.f {
+  stroke: #c66;
+}
+.link {
+  fill: none;
+  stroke: #ccc;
+  stroke-width: 1.5px;
+}
+
+.link.spouse {
+  fill: none;
+  stroke: #f33;
+  stroke-width: 1.5px;
+}
+
+.link.child {
+  stroke: steelblue;
+  stroke-width: 1.5px;
+}

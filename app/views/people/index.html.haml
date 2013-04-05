@@ -1,0 +1,4 @@
+%ul
+- if @people.present?
+  - @people.each do |p|
+    %li= p.name

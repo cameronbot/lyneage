@@ -1,0 +1,9 @@
+= form_for [@family, @person] do |f|
+  - params.each do |k, v|
+    = f.hidden_field k, value: v
+  = f.label :name
+  = f.text_field :name
+  = f.label :gender
+  = f.text_field :gender
+  %label
+  = f.submit "Add person", class: "btn"
