@@ -3,6 +3,7 @@ function drawTree(treeData) {
   // Clear old svg canvas
   d3.select("svg").remove();
 
+  var margin = {top: 0, right: 320, bottom: 0, left: 0};
   var width = $("body").width() - 100,
       height = 500,
       treePadY = 60;
@@ -18,7 +19,7 @@ function drawTree(treeData) {
 
   // Create a tree "canvas"
   var tree = d3.layout.tree()
-    .size([width, height])
+    .size([width, height-treePadY*2])
     .children(function(d) {
       if(d.spouses && d.spouses.length) {
         if( Object.prototype.toString.call( d.spouses ) === '[object Array]' ) {
@@ -32,19 +33,26 @@ function drawTree(treeData) {
         return d.children;
       }
     })
+    .separation(function(a, b) {
+      //return a.parent === b.parent ? 1 : 2;
+      return 1;
+    });
     // not sure what this function does,
     // but you have to check for a.depth > 0 otherwise divide by 0 error
     // on trees with only a single generation
-    .separation(function(a, b) {
-      if(a.depth > 0) {
-        return (a.parent == b.parent ? 1 : 2) / a.depth;
-      } else {
-        return 2;
-      }
-    });
+
+    // .separation(function(a, b) {
+    //   if(a.depth > 0) {
+    //     return (a.parent == b.parent ? 1 : 2) / a.depth;
+    //   } else {
+    //     return 2;
+    //   }
+    // });
 
   var diagonal = d3.svg.diagonal()
-    .projection(function(d) { return [d.y, d.x]; });
+    .projection(function(d) {
+      return [d.y, d.x];
+    });
 
 
   // Preparing the data for the tree layout, convert data into an array of nodes
@@ -89,7 +97,40 @@ function drawTree(treeData) {
       classes += (d.sex ? d.sex + " " : "");
       d3.select(this.parentNode).classed("spoused", !!d.spouse ).classed("stepped", !!d.step);
       return classes;
-    });
+    })
+    .on("mouseover", function(d) {
+      var circle = d3.select(this);
+      circle.transition().duration(200).attr("r", 6);
+    })
+    .on("click", function(d) {
+      var node = d3.select(this.parentNode);
+      var circle = d3.select(this);
+      var left = d3.event.pageX,
+          top = d3.event.pageY;
+
+
+      actionMenu
+        .style("display", "block")
+        .style('position', 'absolute')
+        .style('left', left + "px")
+        .style('top', top + "px")
+        .html("<strong>" + d.name + "</strong>");
+
+      console.log(node);
+
+
+
+      d3.event.preventDefault();
+      //$('body').append($('<div style="position:absolute;top:0;left:0"></div>').html('<input type="text" /> more info about ' + node.select("text").text()));
+      // vis.append("foreignObject")
+      //        .attr("transform", "rotate(-90)")
+      //        .attr("width", 240)
+      //        .attr("height", 120)
+      //        .append("xhtml:div")
+      //        .style("font", "14px 'Helvetica Neue'")
+      //        .style("background", "#eee")
+      //        .html('<input type="text" /> more info about ' + node.select("text").text())
+    });;
 
   // place the name atribute left or right depending if children
   node.append("svg:text")
@@ -99,7 +140,7 @@ function drawTree(treeData) {
     .attr("transform", function(d) { return "rotate(-45)translate(8,-4)"; /*return d.x < 180 ? "rotate(-45)translate(8,-4)" : "rotate(135)translate(-8,4)"; */ })
     .text(function(d) { return d.name; })
 
-  centerTree("body");
+  //centerTree("body");
 
   function centerTree(selector) {
     // selector points to the enclosing g element
@@ -108,4 +149,14 @@ function drawTree(treeData) {
 
     innerSVG.setAttribute("viewBox", [bbox.x, bbox.y-treePadY, bbox.width, bbox.height+treePadY].join(" "));
   }
+
+  function elbow(d, i) {
+    return "M" + d.source.y + "," + d.source.x
+       + "H" + d.target.y + "V" + d.target.x
+       + (d.target.children ? "" : "h" + margin.right);
+  }
+
+  var actionMenu = d3.select("body").append("div")
+    .attr("class", "actionMenu")
+    .style("display", "none");
 }

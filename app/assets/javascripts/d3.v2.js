@@ -5716,7 +5716,13 @@
       var left = d3_layout_treeSearch(root, d3_layout_treeLeftmost), right = d3_layout_treeSearch(root, d3_layout_treeRightmost), deep = d3_layout_treeSearch(root, d3_layout_treeDeepest), x0 = left.x - separation(left, right) / 2, x1 = right.x + separation(right, left) / 2, y1 = deep.depth || 1;
       d3_layout_treeVisitAfter(root, function(node) {
         node.x = (node.x - x0) / (x1 - x0) * size[0];
-        node.y = node.depth / y1 * size[1];
+
+        if(node.spouses == undefined) {
+          node.y = (node.depth-.5) / y1 * size[1];
+        } else {
+          node.y = node.depth / y1 * size[1];
+        }
+
         delete node._tree;
       });
       return nodes;
